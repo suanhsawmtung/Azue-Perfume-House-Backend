@@ -33,7 +33,7 @@ import { IAdminUserService } from "./user.interface";
 
 export class AdminUserService implements IAdminUserService {
   async listUsers(
-    params: ListUsersParams
+    params: ListUsersParams,
   ): Promise<ServiceResponseT<ListUserResultT>> {
     const pageSize = Number(params.limit) || 10;
     const offset = Number(params.offset) || 0;
@@ -92,7 +92,7 @@ export class AdminUserService implements IAdminUserService {
   }
 
   async createUser(
-    params: CreateUserParams
+    params: CreateUserParams,
   ): Promise<ServiceResponseT<SafeUserT>> {
     const { firstName, lastName, phone, email, role, status } = params;
 
@@ -136,7 +136,7 @@ export class AdminUserService implements IAdminUserService {
 
   async updateUser(
     username: string,
-    params: UpdateUserParams
+    params: UpdateUserParams,
   ): Promise<ServiceResponseT<SafeUserT>> {
     const normalizedUsername = requireUsername(username);
     const existing = await findUserByUsername(normalizedUsername);
@@ -154,7 +154,7 @@ export class AdminUserService implements IAdminUserService {
 
     const existingByEmail = await findUserByEmailExcludingId(
       trimmedEmail,
-      existing.id
+      existing.id,
     );
     if (existingByEmail) {
       throw createError({
@@ -197,7 +197,7 @@ export class AdminUserService implements IAdminUserService {
 
   async updateUserRole(
     username: string,
-    params: UpdateUserRoleParams
+    params: UpdateUserRoleParams,
   ): Promise<ServiceResponseT<SafeUserT>> {
     const normalizedUsername = requireUsername(username);
     const existing = await findUserByUsername(normalizedUsername);
@@ -221,7 +221,7 @@ export class AdminUserService implements IAdminUserService {
 
   async updateUserStatus(
     username: string,
-    params: UpdateUserStatusParams
+    params: UpdateUserStatusParams,
   ): Promise<ServiceResponseT<SafeUserT>> {
     const normalizedUsername = requireUsername(username);
     const existing = await findUserByUsername(normalizedUsername);
@@ -256,7 +256,12 @@ export class AdminUserService implements IAdminUserService {
     }
 
     if (existing.image) {
-      const imagePath = getFilePath("uploads", "images", "user", existing.image);
+      const imagePath = getFilePath(
+        "uploads",
+        "images",
+        "user",
+        existing.image,
+      );
       removeFile(imagePath);
     }
 

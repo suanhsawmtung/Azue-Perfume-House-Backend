@@ -1,27 +1,32 @@
-import { Prisma, Transaction, TransactionDirection, TransactionType } from "@prisma/client";
+import {
+  Prisma,
+  Transaction,
+  TransactionDirection,
+  TransactionType,
+} from "@prisma/client";
 import { errorCode } from "../../config/error-code";
 import { prisma } from "../../lib/prisma";
 import { ServiceResponseT } from "../../types/common";
 import {
-    CreateTransactionParams,
-    ListTransactionResultT,
-    ListTransactionsParams,
-    ListTransactionT,
-    UpdateTransactionParams,
+  CreateTransactionParams,
+  ListTransactionResultT,
+  ListTransactionsParams,
+  ListTransactionT,
+  UpdateTransactionParams,
 } from "../../types/transaction";
 import { createError } from "../../utils/common";
 import {
-    buildTransactionWhereClause,
-    createTransactionRecord,
-    findTransactionById,
-    parseTransactionsQueryParams,
-    updateTransactionRecord,
+  buildTransactionWhereClause,
+  createTransactionRecord,
+  findTransactionById,
+  parseTransactionsQueryParams,
+  updateTransactionRecord,
 } from "./transaction.helpers";
 import { IAdminTransactionService } from "./transaction.interface";
 
 export class AdminTransactionService implements IAdminTransactionService {
   async listTransactions(
-    params: ListTransactionsParams
+    params: ListTransactionsParams,
   ): Promise<ServiceResponseT<ListTransactionResultT>> {
     const { pageSize, offset, search, type, direction } =
       parseTransactionsQueryParams(params);
@@ -69,7 +74,9 @@ export class AdminTransactionService implements IAdminTransactionService {
     };
   }
 
-  async getTransactionDetail(id: number): Promise<ServiceResponseT<ListTransactionT>> {
+  async getTransactionDetail(
+    id: number,
+  ): Promise<ServiceResponseT<ListTransactionT>> {
     const transaction = await findTransactionById(id);
 
     if (!transaction) {
@@ -88,17 +95,19 @@ export class AdminTransactionService implements IAdminTransactionService {
   }
 
   async createTransaction(
-    params: CreateTransactionParams & { userId?: number }
+    params: CreateTransactionParams & { userId?: number },
   ): Promise<ServiceResponseT<Transaction>> {
     const { type, direction, amount, source, reference, note, userId } = params;
 
     let transactionDirection = direction;
     if (
-      ([
-        TransactionType.REFUND,
-        TransactionType.EXPENSE,
-        TransactionType.WITHDRAWAL,
-      ] as TransactionType[]).includes(type)
+      (
+        [
+          TransactionType.REFUND,
+          TransactionType.EXPENSE,
+          TransactionType.WITHDRAWAL,
+        ] as TransactionType[]
+      ).includes(type)
     ) {
       transactionDirection = TransactionDirection.OUT;
     } else if (type === TransactionType.PAYMENT) {
@@ -126,7 +135,7 @@ export class AdminTransactionService implements IAdminTransactionService {
 
   async updateTransaction(
     id: number,
-    params: UpdateTransactionParams
+    params: UpdateTransactionParams,
   ): Promise<ServiceResponseT<Transaction>> {
     const { source, reference, note } = params;
 

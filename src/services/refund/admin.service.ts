@@ -1,34 +1,37 @@
 import {
-    PaymentStatus,
-    Refund,
-    RefundStatus,
-    TransactionDirection,
-    TransactionType
+  PaymentStatus,
+  Refund,
+  RefundStatus,
+  TransactionDirection,
+  TransactionType,
 } from "@prisma/client";
 import { errorCode } from "../../config/error-code";
 import { prisma } from "../../lib/prisma";
 import { ServiceResponseT } from "../../types/common";
 import {
-    CreateRefundParams,
-    ListRefundResultT,
-    ListRefundsParams,
-    ListRefundT,
-    UpdateRefundParams,
+  CreateRefundParams,
+  ListRefundResultT,
+  ListRefundsParams,
+  ListRefundT,
+  UpdateRefundParams,
 } from "../../types/refund";
 import { createError } from "../../utils/common";
-import { calculateOrderPaymentStatus, findOrderRecordByCode } from "../order/order.helpers";
 import {
-    buildRefundWhereClause,
-    findRefundById,
-    findRefundByIdWithOrder,
-    parseRefundQueryParams,
-    updateRefundRecord,
+  calculateOrderPaymentStatus,
+  findOrderRecordByCode,
+} from "../order/order.helpers";
+import {
+  buildRefundWhereClause,
+  findRefundById,
+  findRefundByIdWithOrder,
+  parseRefundQueryParams,
+  updateRefundRecord,
 } from "./refund.helpers";
 import { IAdminRefundService } from "./refund.interface";
 
 export class AdminRefundService implements IAdminRefundService {
   async listRefunds(
-    params: ListRefundsParams
+    params: ListRefundsParams,
   ): Promise<ServiceResponseT<ListRefundResultT>> {
     const { pageSize, offset, search, status } = parseRefundQueryParams(params);
 
@@ -90,7 +93,9 @@ export class AdminRefundService implements IAdminRefundService {
     };
   }
 
-  async createRefund(params: CreateRefundParams): Promise<ServiceResponseT<Refund>> {
+  async createRefund(
+    params: CreateRefundParams,
+  ): Promise<ServiceResponseT<Refund>> {
     const { orderCode, amount, reason } = params;
 
     const order = await findOrderRecordByCode(orderCode);
@@ -179,7 +184,7 @@ export class AdminRefundService implements IAdminRefundService {
       const newStatus = calculateOrderPaymentStatus(
         Number(order.totalPrice),
         totalPaidAmount,
-        newTotalRefundedAmount
+        newTotalRefundedAmount,
       );
 
       await tx.order.update({
@@ -199,7 +204,7 @@ export class AdminRefundService implements IAdminRefundService {
 
   async updateRefund(
     id: number,
-    params: UpdateRefundParams
+    params: UpdateRefundParams,
   ): Promise<ServiceResponseT<Refund>> {
     const { reason } = params;
 
@@ -259,11 +264,19 @@ export class AdminRefundService implements IAdminRefundService {
 
       const [totalPaid, totalRefunded] = await Promise.all([
         tx.payment.aggregate({
-          where: { orderId: existing.orderId, status: PaymentStatus.SUCCESS, deletedAt: null },
+          where: {
+            orderId: existing.orderId,
+            status: PaymentStatus.SUCCESS,
+            deletedAt: null,
+          },
           _sum: { amount: true },
         }),
         tx.refund.aggregate({
-          where: { orderId: existing.orderId, status: RefundStatus.SUCCESS, deletedAt: null },
+          where: {
+            orderId: existing.orderId,
+            status: RefundStatus.SUCCESS,
+            deletedAt: null,
+          },
           _sum: { amount: true },
         }),
       ]);
@@ -271,7 +284,7 @@ export class AdminRefundService implements IAdminRefundService {
       const newStatus = calculateOrderPaymentStatus(
         Number(existing.order.totalPrice),
         Number(totalPaid._sum.amount || 0),
-        Number(totalRefunded._sum.amount || 0)
+        Number(totalRefunded._sum.amount || 0),
       );
 
       await tx.order.update({

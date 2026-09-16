@@ -5,7 +5,7 @@ import { ParseCategoryQueryParamsResult } from "../../types/category";
 import { createError } from "../../utils/common";
 
 export const parseCategoryQueryParams = (
-  query: any
+  query: any,
 ): ParseCategoryQueryParamsResult => {
   const pageSizeParam = Number(query.limit);
   const pageSize =
@@ -48,7 +48,7 @@ export const findCategoryByName = async (name: string) => {
 
 export const findCategoryByNameExcludingId = async (
   name: string,
-  excludeId: number
+  excludeId: number,
 ) => {
   return await prisma.category.findFirst({
     where: {
@@ -84,7 +84,7 @@ export const findCategoryById = async (id: number) => {
 };
 
 export const createCategoryRecord = async (
-  createCategoryData: Prisma.CategoryCreateInput
+  createCategoryData: Prisma.CategoryCreateInput,
 ) => {
   return await prisma.category.create({
     data: createCategoryData,
@@ -93,7 +93,7 @@ export const createCategoryRecord = async (
 
 export const updateCategoryRecord = async (
   id: number,
-  updateCategoryData: Prisma.CategoryUpdateInput
+  updateCategoryData: Prisma.CategoryUpdateInput,
 ) => {
   return await prisma.category.update({
     where: { id },

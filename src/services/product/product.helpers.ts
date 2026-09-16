@@ -20,7 +20,7 @@ const parseBoolean = (value: any) => {
 };
 
 export const parseProductQueryParams = (
-  query: any
+  query: any,
 ): ParseProductQueryParamsResult => {
   const pageSizeParam = Number(query.limit);
   const pageSize =
@@ -117,11 +117,10 @@ export const buildProductWhere = ({
     whereConditions.push({ isLimited });
   }
 
-
   return whereConditions.length > 0
     ? {
-      AND: whereConditions,
-    }
+        AND: whereConditions,
+      }
     : {};
 };
 
@@ -222,17 +221,20 @@ export const findAdminProductDetail = async (slug: string) => {
           reviews: {
             where: {
               content: {
-                not: null
-              }
-            }
-          }
+                not: null,
+              },
+            },
+          },
         },
       },
     },
   });
 };
 
-export const findProductDetail = async (slug: string, userId?: string | number) => {
+export const findProductDetail = async (
+  slug: string,
+  userId?: string | number,
+) => {
   return await prisma.product.findFirst({
     where: { slug, deletedAt: null, isActive: true },
     include: {
@@ -308,7 +310,7 @@ export const findProductVariantBySlug = async (slug: string) => {
 
 export const generateUniqueVariantSku = async (
   productId: number,
-  size: number
+  size: number,
 ) => {
   const product = await prisma.product.findUnique({
     where: { id: productId },
@@ -323,7 +325,7 @@ export const generateUniqueVariantSku = async (
   const brandName = product?.brand?.name ?? "";
   const productName = product?.name ?? `product-${productId}`;
   const baseSku = createSlug(
-    [brandName, productName, `${size}ml`].filter(Boolean).join(" ")
+    [brandName, productName, `${size}ml`].filter(Boolean).join(" "),
   ).toUpperCase();
 
   let sku = baseSku;
@@ -347,7 +349,7 @@ export const generateUniqueVariantSku = async (
 export const generateUniqueVariantSlug = async (
   productSlug: string,
   size: number,
-  excludeId?: number
+  excludeId?: number,
 ) => {
   const baseSlug = createSlug(`${productSlug}-${size}ml`);
   const slugOwner = await findProductVariantBySlug(baseSlug);
@@ -390,7 +392,7 @@ export const findProductVariantDetail = async (slug: string) => {
 };
 
 export const createProductVariantRecord = async (
-  createVariantData: Prisma.ProductVariantCreateInput
+  createVariantData: Prisma.ProductVariantCreateInput,
 ) => {
   return await prisma.productVariant.create({
     data: createVariantData,
@@ -399,7 +401,7 @@ export const createProductVariantRecord = async (
 
 export const updateProductVariantRecord = async (
   id: number,
-  updateVariantData: Prisma.ProductVariantUpdateInput
+  updateVariantData: Prisma.ProductVariantUpdateInput,
 ) => {
   return await prisma.productVariant.update({
     where: { id },
@@ -451,7 +453,7 @@ export const deleteProductVariantFully = (variantId: number) => {
 
 export const createVariantImages = async (
   productVariantId: number,
-  imageFilenames: string[]
+  imageFilenames: string[],
 ) => {
   if (imageFilenames.length === 0) return;
 
@@ -503,7 +505,7 @@ export const createVariantInventory = async ({
 
 export const updateVariantInventory = async ({
   id,
-  data
+  data,
 }: {
   id: number;
   data: Prisma.InventoryUpdateInput;
@@ -516,7 +518,7 @@ export const updateVariantInventory = async ({
 
 export const incrementVariantInventory = async (
   productVariantId: number,
-  quantity: number
+  quantity: number,
 ) => {
   const existingInventory = await findVariantInventory(productVariantId);
   if (!existingInventory) {
@@ -531,7 +533,7 @@ export const incrementVariantInventory = async (
 
 export const decrementVariantInventory = async (
   productVariantId: number,
-  quantity: number
+  quantity: number,
 ) => {
   const existingInventory = await findVariantInventory(productVariantId);
   if (!existingInventory) {
@@ -552,7 +554,7 @@ export const deleteVariantInventories = async (productVariantId: number) => {
 
 export const findProductByNameExcludingId = async (
   name: string,
-  excludeId: number
+  excludeId: number,
 ) => {
   return await prisma.product.findFirst({
     where: {
@@ -563,20 +565,20 @@ export const findProductByNameExcludingId = async (
 };
 
 export const insertProduct = async (
-  createProductData: Prisma.ProductCreateInput
+  createProductData: Prisma.ProductCreateInput,
 ) => {
   return await prisma.product.create({
-    data: createProductData
+    data: createProductData,
   });
 };
 
 export const updateProductRecord = async (
   id: number,
-  updateProductData: Prisma.ProductUpdateInput
+  updateProductData: Prisma.ProductUpdateInput,
 ) => {
   return await prisma.product.update({
     where: { id },
-    data: updateProductData
+    data: updateProductData,
   });
 };
 
@@ -614,16 +616,16 @@ export const deleteProductRecord = async (id: number) => {
               slug: `${variant.slug}-deleted-at-${deletedAtSuffix}`,
               sku: `${variant.sku}-deleted-at-${deletedAtSuffix}`,
             },
-          })
-        )
+          }),
+        ),
       );
     }
 
     const images = variantIds.length
       ? await tx.image.findMany({
-        where: { productVariantId: { in: variantIds } },
-        select: { id: true, path: true },
-      })
+          where: { productVariantId: { in: variantIds } },
+          select: { id: true, path: true },
+        })
       : [];
 
     return { variantIds, images };
@@ -632,8 +634,8 @@ export const deleteProductRecord = async (id: number) => {
   if (images.length > 0) {
     await Promise.all(
       images.map((image) =>
-        removeFile(getFilePath("uploads", "images", "product", image.path))
-      )
+        removeFile(getFilePath("uploads", "images", "product", image.path)),
+      ),
     );
 
     await prisma.$transaction(async (tx) => {

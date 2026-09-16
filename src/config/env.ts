@@ -1,5 +1,5 @@
 export const env = {
-  port: process.env.PORT || 8000,
+  port: process.env.PORT || 8080,
   appEnv: process.env.APP_ENV || "development",
   emailProvider: process.env.EMAIL_PROVIDER || "log",
   resendApiKey: process.env.RESEND_API_KEY || "resend-api-key",

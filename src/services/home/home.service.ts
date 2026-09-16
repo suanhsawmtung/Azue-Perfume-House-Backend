@@ -1,4 +1,4 @@
-import { Gender, InventoryType, PostStatus, Prisma } from "@prisma/client";
+import { Gender, InventoryType, PostStatus } from "@prisma/client";
 import { ProductDto } from "../../dtos/product.dto";
 import { prisma } from "../../lib/prisma";
 import { ServiceResponseT } from "../../types/common";
@@ -9,11 +9,14 @@ import { IHomeService } from "./home.interface";
 export class HomeService implements IHomeService {
   async getHomeData(
     userId?: string | number,
-    gender?: string | undefined
+    gender?: string | undefined,
   ): Promise<ServiceResponseT<HomeDataT>> {
     const genderFilter = this.buildHomeProductGenderFilter(gender);
 
-    const bestSellerProducts = await this.getBestSellerProducts(4, genderFilter);
+    const bestSellerProducts = await this.getBestSellerProducts(
+      4,
+      genderFilter,
+    );
     const bestSellerIds = bestSellerProducts.map((p: any) => p.id);
 
     const [productsForYou, latestReviews, latestPosts] = await Promise.all([
@@ -88,12 +91,16 @@ export class HomeService implements IHomeService {
     userId: string | number | undefined,
     excludeIds: number[],
     limit: number,
-    genderFilter: any
+    genderFilter: any,
   ) {
     const uid = userId ? Number(userId) : undefined;
 
     if (!uid) {
-      const products = await this.getTopRatedProducts(excludeIds, limit, genderFilter);
+      const products = await this.getTopRatedProducts(
+        excludeIds,
+        limit,
+        genderFilter,
+      );
       return products.map(ProductDto.toProductCard);
     }
 
@@ -113,7 +120,7 @@ export class HomeService implements IHomeService {
         orderBy: {
           createdAt: "desc",
         },
-        take: 10
+        take: 10,
       }),
       prisma.productWishlist.findMany({
         where: { userId: uid },
@@ -154,7 +161,7 @@ export class HomeService implements IHomeService {
           some: {
             isPrimary: true,
             isActive: true,
-            deletedAt: null
+            deletedAt: null,
           },
         },
       },
@@ -168,7 +175,7 @@ export class HomeService implements IHomeService {
       const fillProducts = await this.getTopRatedProducts(
         [...excludeIds, ...currentIds],
         remaining,
-        genderFilter
+        genderFilter,
       );
       products = [...products, ...fillProducts];
     }
@@ -179,7 +186,7 @@ export class HomeService implements IHomeService {
   private async getTopRatedProducts(
     excludeIds: number[],
     limit: number,
-    genderFilter: any
+    genderFilter: any,
   ) {
     return prisma.product.findMany({
       where: {
@@ -191,7 +198,7 @@ export class HomeService implements IHomeService {
           some: {
             isPrimary: true,
             isActive: true,
-            deletedAt: null
+            deletedAt: null,
           },
         },
       },

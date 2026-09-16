@@ -1,7 +1,10 @@
 import { PostStatus, Prisma, Role } from "@prisma/client";
 import { errorCode } from "../../config/error-code";
 import { prisma } from "../../lib/prisma";
-import { BuildPostWhereParams, ParsePostQueryParamsResult } from "../../types/post";
+import {
+  BuildPostWhereParams,
+  ParsePostQueryParamsResult,
+} from "../../types/post";
 import { createError } from "../../utils/common";
 import { getRoleOrThrow } from "../user/user.helpers";
 
@@ -102,7 +105,7 @@ export const findPostByTitle = async (title: string) => {
 
 export const findPostByTitleExcludingId = async (
   title: string,
-  excludeId: number
+  excludeId: number,
 ) => {
   return await prisma.post.findFirst({
     where: {
@@ -132,7 +135,7 @@ export const insertPost = async (createPostData: Prisma.PostCreateInput) => {
 
 export const updatePostRecord = async (
   id: number,
-  updatePostData: Prisma.PostUpdateInput
+  updatePostData: Prisma.PostUpdateInput,
 ) => {
   return await prisma.post.update({
     where: { id },
@@ -159,7 +162,7 @@ export const deletePostRecord = async (id: number) => {
 };
 
 export const parsePostQueryParams = (
-  query: any
+  query: any,
 ): ParsePostQueryParamsResult => {
   const pageSizeParam = Number(query.limit);
   const pageSize =
@@ -224,7 +227,7 @@ export const requireAuthenticatedUserId = (authenticatedUserId?: number) => {
 export const assertPostReadable = (
   post: { authorId: number; status: PostStatus },
   role: Role,
-  authenticatedUserId: number
+  authenticatedUserId: number,
 ) => {
   if (role === Role.ADMIN) return;
 
@@ -243,7 +246,7 @@ export const assertPostMutable = (
   post: { authorId: number; status: PostStatus },
   role: Role,
   authenticatedUserId: number,
-  message: string
+  message: string,
 ) => {
   if (role === Role.ADMIN) return;
 

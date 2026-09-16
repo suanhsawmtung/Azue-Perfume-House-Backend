@@ -24,7 +24,9 @@ export const getOtpByEmail = async ({
   });
 };
 
-export const createOtp = async (createOtpData: Prisma.OtpCreateInput): Promise<Otp> => {
+export const createOtp = async (
+  createOtpData: Prisma.OtpCreateInput,
+): Promise<Otp> => {
   return await prisma.otp.create({
     data: createOtpData,
   });
@@ -40,7 +42,11 @@ export const updateOtp = async (
   });
 };
 
-export const refreshOrCreateOtp = async ({ email, type, verifiedAt = null }: {
+export const refreshOrCreateOtp = async ({
+  email,
+  type,
+  verifiedAt = null,
+}: {
   email: string;
   type: OtpType;
   verifiedAt?: Date | null;
@@ -77,7 +83,13 @@ export const refreshOrCreateOtp = async ({ email, type, verifiedAt = null }: {
   };
 };
 
-export const deleteOtp = async ({ email, type }: { email: string, type: OtpType }): Promise<Otp> => {
+export const deleteOtp = async ({
+  email,
+  type,
+}: {
+  email: string;
+  type: OtpType;
+}): Promise<Otp> => {
   return await prisma.otp.delete({
     where: { email, type },
   });
@@ -187,11 +199,11 @@ export const invalidGoogleProfileError = (): Error => {
   });
 };
 
-export const findUserByGoogleId = async (googleId: string): Promise<SafeUserT | null> => {
-  return await prisma.user.findUnique({
+export const findUserByGoogleId = async (
+  googleId: string,
+): Promise<SafeUserT | null> => {
+  return (await prisma.user.findUnique({
     where: { googleId },
     omit: userOmit,
-  }) as SafeUserT | null;
+  })) as SafeUserT | null;
 };
-
-

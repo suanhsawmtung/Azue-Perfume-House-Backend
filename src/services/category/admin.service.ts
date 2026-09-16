@@ -1,25 +1,31 @@
 import { Category, Prisma } from "@prisma/client";
 import { errorCode } from "../../config/error-code";
 import { prisma } from "../../lib/prisma";
-import { CreateCategoryParams, ListCategoriesParams, ListCategoryResultT, ListCategoryT, UpdateCategoryParams } from "../../types/category";
+import {
+  CreateCategoryParams,
+  ListCategoriesParams,
+  ListCategoryResultT,
+  ListCategoryT,
+  UpdateCategoryParams,
+} from "../../types/category";
 import { ServiceResponseT } from "../../types/common";
 import { createError, createSlug, ensureUniqueSlug } from "../../utils/common";
 import {
-    createCategoryRecord,
-    deleteCategoryRecord,
-    findCategoryByName,
-    findCategoryByNameExcludingId,
-    findCategoryBySlug,
-    findCategoryBySlugWithPostCount,
-    parseCategoryQueryParams,
-    requireSlug,
-    updateCategoryRecord,
+  createCategoryRecord,
+  deleteCategoryRecord,
+  findCategoryByName,
+  findCategoryByNameExcludingId,
+  findCategoryBySlug,
+  findCategoryBySlugWithPostCount,
+  parseCategoryQueryParams,
+  requireSlug,
+  updateCategoryRecord,
 } from "./category.helpers";
 import { IAdminCategoryService } from "./category.interface";
 
 export class AdminCategoryService implements IAdminCategoryService {
   async listCategories(
-    params: ListCategoriesParams
+    params: ListCategoriesParams,
   ): Promise<ServiceResponseT<ListCategoryResultT>> {
     const { pageSize, offset, search } = parseCategoryQueryParams(params);
 
@@ -64,7 +70,9 @@ export class AdminCategoryService implements IAdminCategoryService {
     };
   }
 
-  async getCategoryDetail(slug: string): Promise<ServiceResponseT<ListCategoryT>> {
+  async getCategoryDetail(
+    slug: string,
+  ): Promise<ServiceResponseT<ListCategoryT>> {
     const normalizedSlug = requireSlug(slug);
     const category = await findCategoryBySlugWithPostCount(normalizedSlug);
 
@@ -83,7 +91,9 @@ export class AdminCategoryService implements IAdminCategoryService {
     };
   }
 
-  async createCategory(params: CreateCategoryParams): Promise<ServiceResponseT<Category>> {
+  async createCategory(
+    params: CreateCategoryParams,
+  ): Promise<ServiceResponseT<Category>> {
     const { name } = params;
     const trimmedName = name.trim();
 
@@ -115,7 +125,7 @@ export class AdminCategoryService implements IAdminCategoryService {
 
   async updateCategory(
     slug: string,
-    params: UpdateCategoryParams
+    params: UpdateCategoryParams,
   ): Promise<ServiceResponseT<Category>> {
     const { name } = params;
     const normalizedSlug = requireSlug(slug);
@@ -132,7 +142,7 @@ export class AdminCategoryService implements IAdminCategoryService {
     const trimmedName = name.trim();
     const existingByName = await findCategoryByNameExcludingId(
       trimmedName,
-      existing.id
+      existing.id,
     );
 
     if (existingByName) {
@@ -174,7 +184,8 @@ export class AdminCategoryService implements IAdminCategoryService {
 
     if (existing._count.posts > 0) {
       throw createError({
-        message: "Category cannot be deleted as it is already being used in some posts.",
+        message:
+          "Category cannot be deleted as it is already being used in some posts.",
         status: 400,
         code: errorCode.invalid,
       });

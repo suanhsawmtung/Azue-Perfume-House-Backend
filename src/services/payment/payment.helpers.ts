@@ -1,23 +1,40 @@
 import { PaymentMethod, PaymentStatus, Prisma } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
-import { ListPaymentsParams, ParsePaymentQueryParamsResult } from "../../types/payment";
+import {
+  ListPaymentsParams,
+  ParsePaymentQueryParamsResult,
+} from "../../types/payment";
 
-export const parsePaymentQueryParams = (query: ListPaymentsParams): ParsePaymentQueryParamsResult => {
+export const parsePaymentQueryParams = (
+  query: ListPaymentsParams,
+): ParsePaymentQueryParamsResult => {
   const pageSizeParam = Number(query.limit);
-  const pageSize = Number.isNaN(pageSizeParam) || pageSizeParam <= 0 ? 10 : Math.min(pageSizeParam, 50);
+  const pageSize =
+    Number.isNaN(pageSizeParam) || pageSizeParam <= 0
+      ? 10
+      : Math.min(pageSizeParam, 50);
 
   const offsetParam = Number(query.offset);
   const offset = Number.isNaN(offsetParam) || offsetParam < 0 ? 0 : offsetParam;
 
-  const search = typeof query.search === "string" && query.search.trim().length > 0 ? query.search.trim() : undefined;
+  const search =
+    typeof query.search === "string" && query.search.trim().length > 0
+      ? query.search.trim()
+      : undefined;
 
   let method: PaymentMethod | undefined;
-  if (typeof query.method === "string" && Object.values(PaymentMethod).includes(query.method as PaymentMethod)) {
+  if (
+    typeof query.method === "string" &&
+    Object.values(PaymentMethod).includes(query.method as PaymentMethod)
+  ) {
     method = query.method as PaymentMethod;
   }
 
   let status: PaymentStatus | undefined;
-  if (typeof query.status === "string" && Object.values(PaymentStatus).includes(query.status as PaymentStatus)) {
+  if (
+    typeof query.status === "string" &&
+    Object.values(PaymentStatus).includes(query.status as PaymentStatus)
+  ) {
     status = query.status as PaymentStatus;
   }
 
@@ -109,7 +126,10 @@ export const createPaymentRecord = async (data: Prisma.PaymentCreateInput) => {
   });
 };
 
-export const updatePaymentRecord = async (id: number, data: Prisma.PaymentUpdateInput) => {
+export const updatePaymentRecord = async (
+  id: number,
+  data: Prisma.PaymentUpdateInput,
+) => {
   return await prisma.payment.update({
     where: { id },
     data,

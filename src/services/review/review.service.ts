@@ -1,18 +1,28 @@
 import { Prisma, Review } from "@prisma/client";
 import { errorCode } from "../../config/error-code";
-import { prisma } from "../../lib/prisma";
-import { CursorPaginationParams, CursorPaginationResultT, ServiceResponseT } from "../../types/common";
-import { CreateReviewParams, ListReviewsParams, ProductReviewT, ReviewCardT, UpdateReviewParams } from "../../types/review";
-import { createError } from "../../utils/common";
-import { IReviewService } from "./review.interface";
 import { ReviewDto } from "../../dtos/review.dto";
-import { parseReviewQueryParams } from "./review.helpers";
+import { prisma } from "../../lib/prisma";
 import { cleanHtmlPlain } from "../../lib/sanitize-html";
+import {
+  CursorPaginationParams,
+  CursorPaginationResultT,
+  ServiceResponseT,
+} from "../../types/common";
+import {
+  CreateReviewParams,
+  ListReviewsParams,
+  ProductReviewT,
+  ReviewCardT,
+  UpdateReviewParams,
+} from "../../types/review";
+import { createError } from "../../utils/common";
+import { parseReviewQueryParams } from "./review.helpers";
+import { IReviewService } from "./review.interface";
 
 export class ReviewService implements IReviewService {
   async listProductReviews(
     productId: number,
-    params: CursorPaginationParams
+    params: CursorPaginationParams,
   ): Promise<ServiceResponseT<CursorPaginationResultT<ProductReviewT>>> {
     const { pageSize, cursor } = parseReviewQueryParams(params);
 
@@ -20,8 +30,8 @@ export class ReviewService implements IReviewService {
       productId,
       isPublish: true,
       content: {
-        not: null
-      }
+        not: null,
+      },
     };
 
     const [items, totalCount] = await Promise.all([
@@ -39,13 +49,13 @@ export class ReviewService implements IReviewService {
               username: true,
               email: true,
               image: true,
-              emailVerifiedAt: true
-            }
-          }
+              emailVerifiedAt: true,
+            },
+          },
         },
-        orderBy: { createdAt: "desc" } // Using ID for monotonic cursor behavior
+        orderBy: { createdAt: "desc" }, // Using ID for monotonic cursor behavior
       }),
-      prisma.review.count({ where })
+      prisma.review.count({ where }),
     ]);
 
     let nextCursor: number | null = null;
@@ -59,9 +69,9 @@ export class ReviewService implements IReviewService {
       data: {
         items,
         nextCursor,
-        totalCount
+        totalCount,
       },
-      message: null
+      message: null,
     };
   }
 
@@ -77,28 +87,32 @@ export class ReviewService implements IReviewService {
             username: true,
             email: true,
             image: true,
-          }
+          },
         },
-      }
+      },
     });
 
     if (!review) {
       throw createError({
         message: "Review not found",
         status: 404,
-        code: errorCode.notFound
+        code: errorCode.notFound,
       });
     }
 
     return {
       success: true,
       data: review as ProductReviewT,
-      message: null
+      message: null,
     };
   }
 
-  async listMyReviews(userId: number, params: ListReviewsParams): Promise<ServiceResponseT<CursorPaginationResultT<ReviewCardT>>> {
-    const { pageSize, cursor, search, isPublish } = parseReviewQueryParams(params);
+  async listMyReviews(
+    userId: number,
+    params: ListReviewsParams,
+  ): Promise<ServiceResponseT<CursorPaginationResultT<ReviewCardT>>> {
+    const { pageSize, cursor, search, isPublish } =
+      parseReviewQueryParams(params);
 
     const where: Prisma.ReviewWhereInput = {
       userId,
@@ -107,11 +121,21 @@ export class ReviewService implements IReviewService {
         OR: [
           { content: { contains: search, mode: "insensitive" } },
           { product: { name: { contains: search, mode: "insensitive" } } },
-          { product: { brand: { name: { contains: search, mode: "insensitive" } } } },
-          { product: { variants: { some: { sku: { contains: search, mode: "insensitive" } } } } },
+          {
+            product: {
+              brand: { name: { contains: search, mode: "insensitive" } },
+            },
+          },
+          {
+            product: {
+              variants: {
+                some: { sku: { contains: search, mode: "insensitive" } },
+              },
+            },
+          },
         ],
-      })
-    }
+      }),
+    };
 
     const [items, totalCount] = await Promise.all([
       prisma.review.findMany({
@@ -128,7 +152,7 @@ export class ReviewService implements IReviewService {
               brand: {
                 select: {
                   name: true,
-                }
+                },
               },
               variants: {
                 where: {
@@ -141,16 +165,16 @@ export class ReviewService implements IReviewService {
                     where: {
                       isPrimary: true,
                     },
-                    select: { path: true }
-                  }
-                }
-              }
-            }
-          }
+                    select: { path: true },
+                  },
+                },
+              },
+            },
+          },
         },
-        orderBy: { createdAt: "desc" } // Using ID for monotonic cursor behavior
+        orderBy: { createdAt: "desc" }, // Using ID for monotonic cursor behavior
       }),
-      prisma.review.count({ where })
+      prisma.review.count({ where }),
     ]);
 
     let nextCursor: number | null = null;
@@ -164,13 +188,15 @@ export class ReviewService implements IReviewService {
       data: {
         items: items.map(ReviewDto.toReviewCard),
         nextCursor,
-        totalCount
+        totalCount,
       },
-      message: null
+      message: null,
     };
   }
 
-  async createReview(params: CreateReviewParams): Promise<ServiceResponseT<Review>> {
+  async createReview(
+    params: CreateReviewParams,
+  ): Promise<ServiceResponseT<Review>> {
     // 1. Check if an existing review exists for the given user and product
     const existingReview = await prisma.review.findUnique({
       where: {
@@ -239,7 +265,12 @@ export class ReviewService implements IReviewService {
     });
   }
 
-  async updateReview(id: number, userId: number, productId: number, params: UpdateReviewParams): Promise<ServiceResponseT<Review>> {
+  async updateReview(
+    id: number,
+    userId: number,
+    productId: number,
+    params: UpdateReviewParams,
+  ): Promise<ServiceResponseT<Review>> {
     const product = await prisma.product.findUnique({
       where: { id: productId },
       select: { rating: true, ratingCount: true },
@@ -294,14 +325,15 @@ export class ReviewService implements IReviewService {
     }
 
     return await prisma.$transaction(async (tx) => {
-
       // 4. If rating is changing, recalculate the product rating
       if (params.rating !== existingReview.rating) {
         const oldAvg = Number(product.rating);
         const oldCount = product.ratingCount;
 
         // Recalculate average (count remains the same since it's an update)
-        const newAvg = (oldAvg * oldCount - existingReview.rating + params.rating) / oldCount;
+        const newAvg =
+          (oldAvg * oldCount - existingReview.rating + params.rating) /
+          oldCount;
 
         await tx.product.update({
           where: { id: existingReview.productId },
@@ -328,7 +360,10 @@ export class ReviewService implements IReviewService {
     });
   }
 
-  async deleteReview(id: number, userId: number): Promise<ServiceResponseT<null>> {
+  async deleteReview(
+    id: number,
+    userId: number,
+  ): Promise<ServiceResponseT<null>> {
     // 1. Find the existing review
     const existingReview = await prisma.review.findUnique({
       where: { id },
@@ -369,7 +404,10 @@ export class ReviewService implements IReviewService {
 
         // 5. Recalculate rating and count
         const newCount = oldCount - 1;
-        const newAvg = newCount > 0 ? (oldAvg * oldCount - existingReview.rating) / newCount : 0;
+        const newAvg =
+          newCount > 0
+            ? (oldAvg * oldCount - existingReview.rating) / newCount
+            : 0;
 
         // 6. Update the product with new aggregates
         await tx.product.update({

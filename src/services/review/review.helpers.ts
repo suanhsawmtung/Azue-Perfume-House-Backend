@@ -1,7 +1,10 @@
 import { Prisma } from "@prisma/client";
 import { errorCode } from "../../config/error-code";
 import { prisma } from "../../lib/prisma";
-import { BuildReviewWhereParams, ParseReviewQueryParamsResult } from "../../types/review";
+import {
+  BuildReviewWhereParams,
+  ParseReviewQueryParamsResult,
+} from "../../types/review";
 import { createError } from "../../utils/common";
 
 export const buildReviewWhere = async ({
@@ -56,12 +59,14 @@ export const buildReviewWhere = async ({
 
   return whereConditions.length > 0
     ? {
-      AND: whereConditions,
-    }
+        AND: whereConditions,
+      }
     : {};
 };
 
-export const parseReviewQueryParams = (query: any): ParseReviewQueryParamsResult => {
+export const parseReviewQueryParams = (
+  query: any,
+): ParseReviewQueryParamsResult => {
   const pageSizeParam = Number(query.limit);
   const pageSize =
     Number.isNaN(pageSizeParam) || pageSizeParam <= 0
@@ -137,7 +142,10 @@ export const findReviewDetail = async (id: number) => {
   });
 };
 
-export const updateReviewRecord = async (id: number, data: Prisma.ReviewUpdateInput) => {
+export const updateReviewRecord = async (
+  id: number,
+  data: Prisma.ReviewUpdateInput,
+) => {
   return await prisma.review.update({
     where: { id },
     data,

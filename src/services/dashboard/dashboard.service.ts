@@ -7,18 +7,18 @@ import {
   DashboardDataT,
   GenderSaleT,
   LowStockItemT,
-  TopSellerT
+  TopSellerT,
 } from "../../types/dashboard";
 import {
   getDashboardDateRange,
   getLastSixMonthsRange,
-  parseDashboardQueryParams
+  parseDashboardQueryParams,
 } from "./dashboard.helpers";
 import { IDashboardService } from "./dashboard.interface";
 
 export class DashboardService implements IDashboardService {
   async getDashboardData(
-    query: any
+    query: any,
   ): Promise<ServiceResponseT<DashboardDataT>> {
     const filter = parseDashboardQueryParams(query);
     const { current, compare } = getDashboardDateRange(filter);
@@ -42,14 +42,23 @@ export class DashboardService implements IDashboardService {
 
     const calculateChange = (curr: number, prev: number) => {
       if (prev === 0) return curr > 0 ? 100 : 0;
-      return Number(((curr - prev) / prev * 100).toFixed(1));
+      return Number((((curr - prev) / prev) * 100).toFixed(1));
     };
 
     const financialStats = {
       ...currentFinancials,
-      revenueChange: calculateChange(currentFinancials.revenue, compareFinancials.revenue),
-      expenseChange: calculateChange(currentFinancials.expense, compareFinancials.expense),
-      profitChange: calculateChange(currentFinancials.profit, compareFinancials.profit),
+      revenueChange: calculateChange(
+        currentFinancials.revenue,
+        compareFinancials.revenue,
+      ),
+      expenseChange: calculateChange(
+        currentFinancials.expense,
+        compareFinancials.expense,
+      ),
+      profitChange: calculateChange(
+        currentFinancials.profit,
+        compareFinancials.profit,
+      ),
     };
 
     return {
@@ -67,7 +76,7 @@ export class DashboardService implements IDashboardService {
 
   async calculateFinancials(
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<{ revenue: number; expense: number; profit: number }> {
     const transactions = await prisma.transaction.groupBy({
       by: ["direction"],
@@ -84,10 +93,12 @@ export class DashboardService implements IDashboardService {
     });
 
     const revenue = Number(
-      transactions.find((t) => t.direction === TransactionDirection.IN)?._sum.amount || 0
+      transactions.find((t) => t.direction === TransactionDirection.IN)?._sum
+        .amount || 0,
     );
     const expense = Number(
-      transactions.find((t) => t.direction === TransactionDirection.OUT)?._sum.amount || 0
+      transactions.find((t) => t.direction === TransactionDirection.OUT)?._sum
+        .amount || 0,
     );
     const profit = revenue - expense;
 
@@ -96,7 +107,7 @@ export class DashboardService implements IDashboardService {
 
   async calculateGenderSales(
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<GenderSaleT[]> {
     const inventorySales = await prisma.inventory.findMany({
       where: {
@@ -139,7 +150,7 @@ export class DashboardService implements IDashboardService {
 
   async calculateTopSellers(
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<TopSellerT[]> {
     const sales = await prisma.inventory.groupBy({
       by: ["productVariantId"],
@@ -177,7 +188,7 @@ export class DashboardService implements IDashboardService {
           sales: sale._sum.quantity || 0,
           revenue: Number(sale._sum.totalCost || 0),
         };
-      })
+      }),
     );
 
     return sellers;
@@ -212,7 +223,7 @@ export class DashboardService implements IDashboardService {
 
   async calculateChartData(
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<ChartDataT[]> {
     const transactions = await prisma.transaction.findMany({
       where: {

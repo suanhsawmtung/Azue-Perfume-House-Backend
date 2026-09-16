@@ -1,16 +1,20 @@
 import { Prisma } from "@prisma/client";
 import { errorCode } from "../../config/error-code";
+import { WishlistDto } from "../../dtos/wishlist.dto";
 import { prisma } from "../../lib/prisma";
-import { CursorPaginationParams, ServiceResponseT } from "../../types/common";
-import { ListWishlistsParams, MyWishlistResultT, ToggleWishlistResponseT } from "../../types/wishlist";
+import { ServiceResponseT } from "../../types/common";
+import {
+  ListWishlistsParams,
+  MyWishlistResultT,
+  ToggleWishlistResponseT,
+} from "../../types/wishlist";
 import { createError } from "../../utils/common";
 import { IWishlistService } from "./wishlist.interface";
-import { WishlistDto } from "../../dtos/wishlist.dto";
 
 export class WishlistService implements IWishlistService {
   async listMyWishlist(
     userId: number,
-    params: ListWishlistsParams
+    params: ListWishlistsParams,
   ): Promise<ServiceResponseT<MyWishlistResultT>> {
     const limit = Number(params.limit) || 10;
     const cursor = params.cursor ? Number(params.cursor) : undefined;
@@ -24,33 +28,35 @@ export class WishlistService implements IWishlistService {
         variants: {
           some: {
             isActive: true,
-            deletedAt: null
-          }
-        }
-      },
-      ...(search ? {
-        OR: [
-          {
-            product: {
-              name: {
-                contains: search,
-                mode: "insensitive"
-              },
-            },
+            deletedAt: null,
           },
-          {
-            product: {
-              brand: {
-                name: {
-                  contains: search,
-                  mode: "insensitive"
+        },
+      },
+      ...(search
+        ? {
+            OR: [
+              {
+                product: {
+                  name: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
                 },
               },
-            },
+              {
+                product: {
+                  brand: {
+                    name: {
+                      contains: search,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            ],
           }
-        ]
-      } : {})
-    }
+        : {}),
+    };
 
     const [items, totalCount] = await Promise.all([
       prisma.productWishlist.findMany({
@@ -82,14 +88,14 @@ export class WishlistService implements IWishlistService {
                     take: 1,
                     select: { path: true },
                   },
-                }
+                },
               },
             },
           },
         },
         orderBy: { createdAt: "desc" },
       }),
-      prisma.productWishlist.count({ where })
+      prisma.productWishlist.count({ where }),
     ]);
 
     let nextCursor: number | null = null;
@@ -109,7 +115,10 @@ export class WishlistService implements IWishlistService {
     };
   }
 
-  async addToWishlist({ userId, productId }: {
+  async addToWishlist({
+    userId,
+    productId,
+  }: {
     userId: number;
     productId: number;
   }): Promise<ServiceResponseT<ToggleWishlistResponseT>> {
@@ -166,7 +175,10 @@ export class WishlistService implements IWishlistService {
     }
   }
 
-  async removeFromWishlist({ userId, productId }: {
+  async removeFromWishlist({
+    userId,
+    productId,
+  }: {
     userId: number;
     productId: number;
   }): Promise<ServiceResponseT<ToggleWishlistResponseT>> {

@@ -18,6 +18,8 @@ router.get(
     listProducts
 );
 
+router.get("/select-options", selectOptionListProducts);
+
 router.get(
     "/:slug",
     tryAuthenticate,
@@ -49,8 +51,6 @@ router.delete(
     handleValidationError,
     deleteReview
 );
-
-router.get("/select-options", selectOptionListProducts);
 
 router.get("/:productSlug/variants/select-options", selectOptionListProductVariants);
 

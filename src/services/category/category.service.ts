@@ -5,7 +5,9 @@ import { CursorPaginationResultT, ServiceResponseT } from "../../types/common";
 import { ICategoryService } from "./category.interface";
 
 export class CategoryService implements ICategoryService {
-  async listPublicCategories(): Promise<ServiceResponseT<ListPublicCategoryT[]>> {
+  async listPublicCategories(): Promise<
+    ServiceResponseT<ListPublicCategoryT[]>
+  > {
     const categories = await prisma.category.findMany({
       select: {
         id: true,
@@ -25,9 +27,11 @@ export class CategoryService implements ICategoryService {
     };
   }
 
-  async selectOptionListCategories(
-    query: { limit?: number; cursor?: number | null; search?: string | undefined }
-  ): Promise<ServiceResponseT<CursorPaginationResultT<ListPublicCategoryT>>> {
+  async selectOptionListCategories(query: {
+    limit?: number;
+    cursor?: number | null;
+    search?: string | undefined;
+  }): Promise<ServiceResponseT<CursorPaginationResultT<ListPublicCategoryT>>> {
     const limit = query.limit || 10;
     const cursor = query.cursor;
     const search = query.search;
@@ -40,7 +44,7 @@ export class CategoryService implements ICategoryService {
           mode: "insensitive",
         },
       }),
-    }
+    };
 
     const [items, totalCount] = await Promise.all([
       prisma.category.findMany({

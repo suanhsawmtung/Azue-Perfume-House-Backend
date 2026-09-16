@@ -1,16 +1,27 @@
 import { AuthProvider, Prisma, Role } from "@prisma/client";
 import { Profile } from "passport-google-oauth20";
 import { prisma } from "../../lib/prisma";
-import { CursorPaginationResultT, SelectOptionT, ServiceResponseT } from "../../types/common";
+import {
+  CursorPaginationResultT,
+  SelectOptionT,
+  ServiceResponseT,
+} from "../../types/common";
 import { PublicUserResultT, PublicUserT, SafeUserT } from "../../types/user";
-import { findUserByGoogleId, invalidGoogleProfileError } from "../auth/auth.helpers";
-import { createUserRecord, findUserByEmail, generateUsername } from "./user.helpers";
+import {
+  findUserByGoogleId,
+  invalidGoogleProfileError,
+} from "../auth/auth.helpers";
+import {
+  createUserRecord,
+  findUserByEmail,
+  generateUsername,
+} from "./user.helpers";
 import { IUserService } from "./user.interface";
 
 export class UserService implements IUserService {
   async listPublicUsers(
     limit?: number,
-    offset?: number
+    offset?: number,
   ): Promise<ServiceResponseT<PublicUserResultT>> {
     const pageSize = limit || 10;
     const skip = offset || 0;
@@ -54,7 +65,9 @@ export class UserService implements IUserService {
     };
   }
 
-  async findOrCreateByGoogle(params: Profile): Promise<ServiceResponseT<SafeUserT>> {
+  async findOrCreateByGoogle(
+    params: Profile,
+  ): Promise<ServiceResponseT<SafeUserT>> {
     const email = params.emails?.[0]?.value;
     const googleId = params.id;
     if (!email) throw invalidGoogleProfileError();
@@ -69,7 +82,7 @@ export class UserService implements IUserService {
       return {
         success: true,
         data: user,
-        message: "User is already exist."
+        message: "User is already exist.",
       };
     }
 
@@ -81,22 +94,26 @@ export class UserService implements IUserService {
       lastName: params.name?.familyName || "",
       role: Role.USER,
       username: await generateUsername(
-        params.name?.givenName || params.displayName || `oauth_google_${googleId}`,
-        params.name?.familyName || ""
+        params.name?.givenName ||
+          params.displayName ||
+          `oauth_google_${googleId}`,
+        params.name?.familyName || "",
       ),
       emailVerifiedAt: new Date(),
-    })
+    });
 
     return {
       success: true,
       data: newUser,
-      message: "User created successfully."
+      message: "User created successfully.",
     };
   }
 
-  async selectOptionListUsers(
-    query: { limit?: number; cursor?: number | null; search?: string | undefined }
-  ): Promise<ServiceResponseT<CursorPaginationResultT<SelectOptionT>>> {
+  async selectOptionListUsers(query: {
+    limit?: number;
+    cursor?: number | null;
+    search?: string | undefined;
+  }): Promise<ServiceResponseT<CursorPaginationResultT<SelectOptionT>>> {
     const limit = query.limit || 10;
     const cursor = query.cursor;
     const search = query.search;
@@ -111,7 +128,7 @@ export class UserService implements IUserService {
           { username: { contains: search, mode: "insensitive" } },
         ],
       }),
-    }
+    };
 
     const [items, totalCount] = await Promise.all([
       prisma.user.findMany({
@@ -137,9 +154,11 @@ export class UserService implements IUserService {
       nextCursor = items[items.length - 1]?.id || null;
     }
 
-    const result = items.map(user => ({
+    const result = items.map((user) => ({
       id: user.id,
-      name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.username,
+      name:
+        `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+        user.username,
       slug: user.username,
     }));
 

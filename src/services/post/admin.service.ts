@@ -1,6 +1,7 @@
 import { Post, PostStatus, Prisma } from "@prisma/client";
 import { errorCode } from "../../config/error-code";
 import { prisma } from "../../lib/prisma";
+import { cleanHtmlRich } from "../../lib/sanitize-html";
 import { ServiceResponseT } from "../../types/common";
 import {
   AdminListPostResultT,
@@ -8,7 +9,7 @@ import {
   CreatePostParams,
   ListPostsParams,
   PostDetailT,
-  UpdatePostParams
+  UpdatePostParams,
 } from "../../types/post";
 import { createError, createSlug, ensureUniqueSlug } from "../../utils/common";
 import {
@@ -24,11 +25,10 @@ import {
   updatePostRecord,
 } from "./post.helpers";
 import { IAdminPostService } from "./post.interface";
-import { cleanHtmlRich } from "../../lib/sanitize-html";
 
 export class AdminPostService implements IAdminPostService {
   async listPosts(
-    params: ListPostsParams
+    params: ListPostsParams,
   ): Promise<ServiceResponseT<AdminListPostResultT>> {
     const { pageSize, offset, search, categorySlug, status } =
       parsePostQueryParams(params);
@@ -37,7 +37,9 @@ export class AdminPostService implements IAdminPostService {
       search,
       categorySlug,
       status,
-      ...(params.authenticatedUserId && { authenticatedUserId: params.authenticatedUserId }),
+      ...(params.authenticatedUserId && {
+        authenticatedUserId: params.authenticatedUserId,
+      }),
     });
 
     const [items, total] = await Promise.all([
@@ -162,16 +164,10 @@ export class AdminPostService implements IAdminPostService {
 
   async updatePost(
     slug: string,
-    params: UpdatePostParams
+    params: UpdatePostParams,
   ): Promise<ServiceResponseT<Post>> {
-    const {
-      title,
-      excerpt,
-      content,
-      status,
-      categoryId,
-      imageFilename,
-    } = params;
+    const { title, excerpt, content, status, categoryId, imageFilename } =
+      params;
 
     const normalizedSlug = requireSlug(slug);
     const existing = await findPostBySlug(normalizedSlug);
@@ -187,7 +183,7 @@ export class AdminPostService implements IAdminPostService {
     const trimmedTitle = title.trim();
     const existingByTitle = await findPostByTitleExcludingId(
       trimmedTitle,
-      existing.id
+      existing.id,
     );
 
     if (existingByTitle) {
@@ -219,7 +215,10 @@ export class AdminPostService implements IAdminPostService {
       updateData.image = imageFilename;
     }
 
-    if (status === PostStatus.PUBLISHED && existing.status !== PostStatus.PUBLISHED) {
+    if (
+      status === PostStatus.PUBLISHED &&
+      existing.status !== PostStatus.PUBLISHED
+    ) {
       updateData.publishedAt = new Date();
     }
 

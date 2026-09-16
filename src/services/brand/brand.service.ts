@@ -1,6 +1,10 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
-import { CursorPaginationResultT, SelectOptionT, ServiceResponseT } from "../../types/common";
+import {
+  CursorPaginationResultT,
+  SelectOptionT,
+  ServiceResponseT,
+} from "../../types/common";
 import { IBrandService } from "./brand.interface";
 
 export class BrandService implements IBrandService {
@@ -21,9 +25,11 @@ export class BrandService implements IBrandService {
     };
   }
 
-  async selectOptionListBrands(
-    query: { limit?: number; cursor?: number | null; search?: string | undefined }
-  ): Promise<ServiceResponseT<CursorPaginationResultT<SelectOptionT>>> {
+  async selectOptionListBrands(query: {
+    limit?: number;
+    cursor?: number | null;
+    search?: string | undefined;
+  }): Promise<ServiceResponseT<CursorPaginationResultT<SelectOptionT>>> {
     const limit = query.limit || 10;
     const cursor = query.cursor;
     const search = query.search;
@@ -36,7 +42,7 @@ export class BrandService implements IBrandService {
           mode: "insensitive",
         },
       }),
-    }
+    };
 
     const [items, totalCount] = await Promise.all([
       prisma.brand.findMany({

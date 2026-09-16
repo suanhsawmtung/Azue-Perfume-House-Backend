@@ -31,13 +31,13 @@ import {
   parseProductQueryParams,
   requireSlug,
   requireVariantSlug,
-  updateProductRecord
+  updateProductRecord,
 } from "./product.helpers";
 import { IAdminProductService } from "./product.interface";
 
 export class AdminProductService implements IAdminProductService {
   async listProducts(
-    params: ListProductsParams
+    params: ListProductsParams,
   ): Promise<ServiceResponseT<AdminListProductResultT>> {
     const {
       pageSize,
@@ -92,7 +92,9 @@ export class AdminProductService implements IAdminProductService {
     };
   }
 
-  async getProductDetail(slug: string): Promise<ServiceResponseT<AdminProductDetailT>> {
+  async getProductDetail(
+    slug: string,
+  ): Promise<ServiceResponseT<AdminProductDetailT>> {
     const normalizedSlug = requireSlug(slug);
     const product = await findAdminProductDetail(normalizedSlug);
 
@@ -112,7 +114,7 @@ export class AdminProductService implements IAdminProductService {
   }
 
   async createProduct(
-    params: CreateProductParams
+    params: CreateProductParams,
   ): Promise<ServiceResponseT<Product>> {
     const {
       name,
@@ -164,7 +166,7 @@ export class AdminProductService implements IAdminProductService {
 
   async updateProduct(
     slug: string,
-    params: UpdateProductNewParams
+    params: UpdateProductNewParams,
   ): Promise<ServiceResponseT<Product>> {
     const {
       name,
@@ -190,7 +192,7 @@ export class AdminProductService implements IAdminProductService {
     const trimmedName = name.trim();
     const existingByName = await findProductByNameExcludingId(
       trimmedName,
-      existing.id
+      existing.id,
     );
     if (existingByName) {
       throw createError({
@@ -249,7 +251,7 @@ export class AdminProductService implements IAdminProductService {
   }
 
   async createVariant(
-    params: CreateProductVariantParams
+    params: CreateProductVariantParams,
   ): Promise<ServiceResponseT<ProductVariant>> {
     const {
       productId,
@@ -285,13 +287,10 @@ export class AdminProductService implements IAdminProductService {
 
     const skuFinal = await generateUniqueVariantSku(
       Number(productId),
-      variantSize
-    );
-
-    const slug = await generateUniqueVariantSlug(
-      product.slug,
       variantSize,
     );
+
+    const slug = await generateUniqueVariantSlug(product.slug, variantSize);
 
     const variant = await prisma.$transaction(async (tx) => {
       const newVariant = await tx.productVariant.create({
@@ -348,7 +347,7 @@ export class AdminProductService implements IAdminProductService {
 
   async updateVariant(
     variantSlug: string,
-    params: UpdateProductVariantParams
+    params: UpdateProductVariantParams,
   ): Promise<ServiceResponseT<ProductVariant>> {
     const {
       size,
@@ -382,7 +381,7 @@ export class AdminProductService implements IAdminProductService {
         slug = await generateUniqueVariantSlug(
           product.slug,
           variantSize,
-          existing.id
+          existing.id,
         );
       }
     }
@@ -421,13 +420,13 @@ export class AdminProductService implements IAdminProductService {
         });
 
         const imagesToDelete = currentImages.filter(
-          (img) => !imageLayout.includes(img.path)
+          (img) => !imageLayout.includes(img.path),
         );
 
         if (imagesToDelete.length > 0) {
           for (const img of imagesToDelete) {
             await removeFile(
-              getFilePath("uploads", "images", "product", img.path)
+              getFilePath("uploads", "images", "product", img.path),
             );
           }
           await tx.image.deleteMany({
@@ -435,16 +434,19 @@ export class AdminProductService implements IAdminProductService {
           });
         }
 
-        const newImages = imageFilenames?.filter((filename) => !currentImages.some((img) => img.path === filename)) || [];
+        const newImages =
+          imageFilenames?.filter(
+            (filename) => !currentImages.some((img) => img.path === filename),
+          ) || [];
 
         // Re-order and sync
         for (let i = 0; i < imageLayout.length; i++) {
           const isNew = imageLayout[i] === "__NEW__";
 
-          if(!isNew) continue;
+          if (!isNew) continue;
 
           const path = newImages.shift();
-          if(!path) continue;
+          if (!path) continue;
 
           await tx.image.create({
             data: {
@@ -452,7 +454,7 @@ export class AdminProductService implements IAdminProductService {
               isPrimary: i === 0,
               order: i,
               productVariantId: existing.id,
-            }
+            },
           });
         }
       }
@@ -495,7 +497,9 @@ export class AdminProductService implements IAdminProductService {
     };
   }
 
-  async getVariantDetail(variantSlug: string): Promise<ServiceResponseT<ProductVariantDetailType>> {
+  async getVariantDetail(
+    variantSlug: string,
+  ): Promise<ServiceResponseT<ProductVariantDetailType>> {
     const normalizedSlug = requireVariantSlug(variantSlug);
     const variant = await findProductVariantDetail(normalizedSlug);
 

@@ -9,14 +9,18 @@ import {
   ListInventoryT,
 } from "../../types/inventory";
 import { createError } from "../../utils/common";
-import { buildInventoryWhereClause, parseInventoryQueryParams } from "./inventory.helpers";
+import {
+  buildInventoryWhereClause,
+  parseInventoryQueryParams,
+} from "./inventory.helpers";
 import { IAdminInventoryService } from "./inventory.interface";
 
 export class AdminInventoryService implements IAdminInventoryService {
   async listInventories(
-    params: ListInventoriesParams
+    params: ListInventoriesParams,
   ): Promise<ServiceResponseT<ListInventoryResultT>> {
-    const { pageSize, offset, search, type } = parseInventoryQueryParams(params);
+    const { pageSize, offset, search, type } =
+      parseInventoryQueryParams(params);
 
     const where = buildInventoryWhereClause({ search, type });
 
@@ -70,7 +74,7 @@ export class AdminInventoryService implements IAdminInventoryService {
   }
 
   async createInventory(
-    params: CreateInventoryParams & { createdById?: number }
+    params: CreateInventoryParams & { createdById?: number },
   ): Promise<ServiceResponseT<null>> {
     const { productVariantId, type, quantity, unitCost, createdById } = params;
 
@@ -96,11 +100,13 @@ export class AdminInventoryService implements IAdminInventoryService {
       }
 
       const isPurchase = type === InventoryType.PURCHASE;
-      const isIncrement = ([
-        InventoryType.PURCHASE,
-        InventoryType.ADJUSTMENT_IN,
-        InventoryType.RETURN_FROM_CUSTOMER,
-      ] as InventoryType[]).includes(type);
+      const isIncrement = (
+        [
+          InventoryType.PURCHASE,
+          InventoryType.ADJUSTMENT_IN,
+          InventoryType.RETURN_FROM_CUSTOMER,
+        ] as InventoryType[]
+      ).includes(type);
 
       let newStock = Number(variant.stock);
       let newTotalCost = Number(variant.totalCost);
@@ -124,7 +130,8 @@ export class AdminInventoryService implements IAdminInventoryService {
       } else {
         if (type === InventoryType.ADJUSTMENT_IN && newStock <= 0) {
           throw createError({
-            message: "Adjustment incoming is not allowed when current stock is 0.",
+            message:
+              "Adjustment incoming is not allowed when current stock is 0.",
             status: 400,
             code: errorCode.invalid,
           });

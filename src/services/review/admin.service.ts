@@ -3,22 +3,22 @@ import { errorCode } from "../../config/error-code";
 import { prisma } from "../../lib/prisma";
 import { ServiceResponseT } from "../../types/common";
 import {
-    ListReviewResultT,
-    ListReviewsParams,
-    ListReviewT,
+  ListReviewResultT,
+  ListReviewsParams,
+  ListReviewT,
 } from "../../types/review";
 import { createError } from "../../utils/common";
 import {
-    buildReviewWhere,
-    findReviewDetail,
-    parseReviewQueryParams,
-    updateReviewRecord
+  buildReviewWhere,
+  findReviewDetail,
+  parseReviewQueryParams,
+  updateReviewRecord,
 } from "./review.helpers";
 import { IAdminReviewService } from "./review.interface";
 
 export class AdminReviewService implements IAdminReviewService {
   async listReviews(
-    params: ListReviewsParams
+    params: ListReviewsParams,
   ): Promise<ServiceResponseT<ListReviewResultT>> {
     const { pageSize, offset, search, isPublish, username, productSlug } =
       parseReviewQueryParams(params);
@@ -86,9 +86,7 @@ export class AdminReviewService implements IAdminReviewService {
     };
   }
 
-  async togglePublishing(
-    id: number
-  ): Promise<ServiceResponseT<Review>> {
+  async togglePublishing(id: number): Promise<ServiceResponseT<Review>> {
     const review = await prisma.review.findUnique({ where: { id } });
 
     if (!review) {
@@ -99,7 +97,9 @@ export class AdminReviewService implements IAdminReviewService {
       });
     }
 
-    const updated = await updateReviewRecord(id, { isPublish: !review.isPublish });
+    const updated = await updateReviewRecord(id, {
+      isPublish: !review.isPublish,
+    });
 
     return {
       success: true,

@@ -5,7 +5,7 @@ import { ParseBrandQueryParamsResult } from "../../types/brand";
 import { createError } from "../../utils/common";
 
 export const parseBrandQueryParams = (
-  query: any
+  query: any,
 ): ParseBrandQueryParamsResult => {
   const pageSizeParam = Number(query.limit);
   const pageSize =
@@ -34,7 +34,7 @@ export const buildBrandWhereClause = (params: {
   const { search } = params;
   const where: Prisma.BrandWhereInput = {
     deletedAt: null,
-  }
+  };
 
   if (search) {
     where.OR = [
@@ -76,7 +76,7 @@ export const findBrandByName = async (name: string) => {
 
 export const findBrandByNameExcludingId = async (
   name: string,
-  excludeId: number
+  excludeId: number,
 ) => {
   return await prisma.brand.findFirst({
     where: {
@@ -112,7 +112,7 @@ export const findBrandById = async (id: number) => {
 };
 
 export const createBrandRecord = async (
-  createBrandData: Prisma.BrandCreateInput
+  createBrandData: Prisma.BrandCreateInput,
 ) => {
   return await prisma.brand.create({
     data: createBrandData,
@@ -121,7 +121,7 @@ export const createBrandRecord = async (
 
 export const updateBrandRecord = async (
   id: number,
-  updateBrandData: Prisma.BrandUpdateInput
+  updateBrandData: Prisma.BrandUpdateInput,
 ) => {
   return await prisma.brand.update({
     where: { id },

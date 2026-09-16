@@ -1,23 +1,42 @@
 import { Prisma, TransactionDirection, TransactionType } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
-import { ListTransactionsParams, ParseTransactionsQueryParamsResult } from "../../types/transaction";
+import {
+  ListTransactionsParams,
+  ParseTransactionsQueryParamsResult,
+} from "../../types/transaction";
 
-export const parseTransactionsQueryParams = (query: ListTransactionsParams): ParseTransactionsQueryParamsResult => {
+export const parseTransactionsQueryParams = (
+  query: ListTransactionsParams,
+): ParseTransactionsQueryParamsResult => {
   const pageSizeParam = Number(query.limit);
-  const pageSize = Number.isNaN(pageSizeParam) || pageSizeParam <= 0 ? 10 : Math.min(pageSizeParam, 50);
+  const pageSize =
+    Number.isNaN(pageSizeParam) || pageSizeParam <= 0
+      ? 10
+      : Math.min(pageSizeParam, 50);
 
   const offsetParam = Number(query.offset);
   const offset = Number.isNaN(offsetParam) || offsetParam < 0 ? 0 : offsetParam;
 
-  const search = typeof query.search === "string" && query.search.trim().length > 0 ? query.search.trim() : undefined;
+  const search =
+    typeof query.search === "string" && query.search.trim().length > 0
+      ? query.search.trim()
+      : undefined;
 
   let type: TransactionType | undefined;
-  if (typeof query.type === "string" && Object.values(TransactionType).includes(query.type as TransactionType)) {
+  if (
+    typeof query.type === "string" &&
+    Object.values(TransactionType).includes(query.type as TransactionType)
+  ) {
     type = query.type as TransactionType;
   }
 
   let direction: TransactionDirection | undefined;
-  if (typeof query.direction === "string" && Object.values(TransactionDirection).includes(query.direction as TransactionDirection)) {
+  if (
+    typeof query.direction === "string" &&
+    Object.values(TransactionDirection).includes(
+      query.direction as TransactionDirection,
+    )
+  ) {
     direction = query.direction as TransactionDirection;
   }
 
@@ -123,7 +142,9 @@ export const findTransactionById = async (id: number) => {
   });
 };
 
-export const createTransactionRecord = async (data: Prisma.TransactionCreateInput) => {
+export const createTransactionRecord = async (
+  data: Prisma.TransactionCreateInput,
+) => {
   return await prisma.transaction.create({
     data,
     include: {
@@ -139,7 +160,10 @@ export const createTransactionRecord = async (data: Prisma.TransactionCreateInpu
   });
 };
 
-export const updateTransactionRecord = async (id: number, data: Prisma.TransactionUpdateInput) => {
+export const updateTransactionRecord = async (
+  id: number,
+  data: Prisma.TransactionUpdateInput,
+) => {
   return await prisma.transaction.update({
     where: { id },
     data,

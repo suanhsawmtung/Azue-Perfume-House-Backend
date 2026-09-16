@@ -2,20 +2,26 @@ import { PostStatus, Prisma } from "@prisma/client";
 import { errorCode } from "../../config/error-code";
 import { prisma } from "../../lib/prisma";
 import { ServiceResponseT } from "../../types/common";
-import { ListPostResultT, ListPostsParams, ListPostT, PostDetailT } from "../../types/post";
+import {
+  ListPostResultT,
+  ListPostsParams,
+  ListPostT,
+  PostDetailT,
+} from "../../types/post";
 import { createError } from "../../utils/common";
 import {
   findPostDetail,
   parsePostQueryParams,
-  requireSlug
+  requireSlug,
 } from "./post.helpers";
 import { IPostService } from "./post.interface";
 
 export class PostService implements IPostService {
   async listPosts(
-    params: ListPostsParams
+    params: ListPostsParams,
   ): Promise<ServiceResponseT<ListPostResultT>> {
-    const { pageSize, offset, search, categorySlug } = parsePostQueryParams(params);
+    const { pageSize, offset, search, categorySlug } =
+      parsePostQueryParams(params);
 
     const where: Prisma.PostWhereInput = {
       status: PostStatus.PUBLISHED,
@@ -76,7 +82,7 @@ export class PostService implements IPostService {
         currentPage,
         totalPages,
         pageSize,
-        total
+        total,
       },
       message: null,
     };

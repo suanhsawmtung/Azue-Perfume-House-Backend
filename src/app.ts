@@ -12,8 +12,10 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import path from "path";
+import swaggerUi from "swagger-ui-express";
 import { env } from "./config/env";
 import passport from "./config/passport";
+import { swaggerSpec } from "./docs/swagger";
 import { startCronJobs } from "./jobs";
 import { isMaintenanceMode } from "./middlewares/ensure-not-in-maintenance";
 import routes from "./routes";
@@ -23,7 +25,7 @@ const whitelist = env.corsOrigins;
 const corsOptions = {
   origin: function (
     origin: any,
-    callback: (error: Error | null, origin?: boolean) => void
+    callback: (error: Error | null, origin?: boolean) => void,
   ) {
     if (!origin) return callback(null, true);
     if (whitelist.includes(origin)) {
@@ -45,7 +47,9 @@ app
   .use(cors(corsOptions))
   .use(helmet())
   .use(compression())
-  .use(passport.initialize());;
+  .use(passport.initialize());
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(
   "/post",
@@ -53,7 +57,7 @@ app.use(
     setHeaders: (res) => {
       res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     },
-  })
+  }),
 );
 
 app.use("/post", express.static(path.resolve("uploads/images/post")));
@@ -64,7 +68,7 @@ app.use(
     setHeaders: (res) => {
       res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     },
-  })
+  }),
 );
 
 app.use("/product", express.static(path.resolve("uploads/images/product")));
@@ -75,7 +79,7 @@ app.use(
     setHeaders: (res) => {
       res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     },
-  })
+  }),
 );
 
 app.use("/order", express.static(path.resolve("uploads/images/order")));
@@ -86,7 +90,7 @@ app.use(
     setHeaders: (res) => {
       res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     },
-  })
+  }),
 );
 
 app.use("/user", express.static(path.resolve("uploads/images/user")));
@@ -97,7 +101,7 @@ const errorHandler: ErrorRequestHandler = async (
   error: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   // Clean up uploaded files if any error occurs
   await cleanupUploadedFiles(req as any);

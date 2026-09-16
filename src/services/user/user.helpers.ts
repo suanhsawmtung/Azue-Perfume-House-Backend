@@ -1,4 +1,12 @@
-import { OrderSource, OrderStatus, PaymentStatus, Prisma, RefundStatus, Role, Status } from "@prisma/client";
+import {
+  OrderSource,
+  OrderStatus,
+  PaymentStatus,
+  Prisma,
+  RefundStatus,
+  Role,
+  Status,
+} from "@prisma/client";
 import { errorCode } from "../../config/error-code";
 import { prisma } from "../../lib/prisma";
 import { generateCode } from "../../lib/unique-key-generator";
@@ -18,7 +26,7 @@ export const userOmit = {
 } as const;
 
 export const parseUserQueryParams = (
-  query: any
+  query: any,
 ): ParseUserQueryParamsResult => {
   const pageSizeParam = Number(query.limit);
   const pageSize =
@@ -190,7 +198,7 @@ export const findUserByUsername = async (username: string) => {
 
 export const findUserByEmailExcludingId = async (
   email: string,
-  excludeId: number
+  excludeId: number,
 ) => {
   return await prisma.user.findFirst({
     where: {
@@ -202,7 +210,7 @@ export const findUserByEmailExcludingId = async (
 
 export const findUserByUsernameExcludingId = async (
   username: string,
-  excludeId: number
+  excludeId: number,
 ) => {
   return await prisma.user.findFirst({
     where: {
@@ -212,7 +220,9 @@ export const findUserByUsernameExcludingId = async (
   });
 };
 
-export const createUserRecord = async (createUserData: Prisma.UserCreateInput) => {
+export const createUserRecord = async (
+  createUserData: Prisma.UserCreateInput,
+) => {
   return await prisma.user.create({
     data: createUserData,
     omit: userOmit,
@@ -221,7 +231,7 @@ export const createUserRecord = async (createUserData: Prisma.UserCreateInput) =
 
 export const updateUserRecord = async (
   id: number,
-  updateUserData: Prisma.UserUpdateInput
+  updateUserData: Prisma.UserUpdateInput,
 ) => {
   return await prisma.user.update({
     where: { id },
@@ -256,7 +266,7 @@ export const deleteUserRecord = async (id: number) => {
 
 export const generateUsername = async (
   firstName: string | null | undefined,
-  lastName: string | null | undefined
+  lastName: string | null | undefined,
 ): Promise<string> => {
   let baseSlug: string;
 
@@ -304,7 +314,7 @@ export const GRADE_CONFIG = {
 } as const;
 
 export const getGrade = (
-  points: number
+  points: number,
 ): "PLATINUM" | "GOLD" | "SILVER" | "BRONZE" => {
   if (points >= GRADE_CONFIG.PLATINUM.min) return "PLATINUM";
   if (points >= GRADE_CONFIG.GOLD.min) return "GOLD";
@@ -379,7 +389,7 @@ export async function recalculateUserPoints(userId: number) {
     0,
     orderCount * POINTS_CONFIG.PER_ORDER +
       Math.floor(totalSpent / POINTS_CONFIG.MMK_DIVISOR) +
-      reviewCount * POINTS_CONFIG.PER_REVIEW
+      reviewCount * POINTS_CONFIG.PER_REVIEW,
   );
 
   // 6. Update user record

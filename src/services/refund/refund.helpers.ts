@@ -1,9 +1,12 @@
 import { Prisma, RefundStatus } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
-import type { ListRefundsParams, ParseRefundQueryParamsResult } from "../../types/refund";
+import type {
+  ListRefundsParams,
+  ParseRefundQueryParamsResult,
+} from "../../types/refund";
 
 export const parseRefundQueryParams = (
-  query: any
+  query: any,
 ): ParseRefundQueryParamsResult => {
   const pageSizeParam = Number(query.limit);
   const pageSize =
@@ -37,7 +40,7 @@ export const parseRefundQueryParams = (
 
 export const buildRefundWhereClause = ({
   search,
-  status
+  status,
 }: ListRefundsParams): Prisma.RefundWhereInput => {
   const where: Prisma.RefundWhereInput = {
     deletedAt: null,
@@ -62,7 +65,7 @@ export const buildRefundWhereClause = ({
     ];
   }
 
-  if(status){
+  if (status) {
     where.status = status;
   }
 
@@ -98,7 +101,7 @@ export const findRefundByIdWithOrder = async (id: number) => {
 };
 
 export const createRefundRecord = async (
-  createRefundData: Prisma.RefundCreateInput
+  createRefundData: Prisma.RefundCreateInput,
 ) => {
   return await prisma.refund.create({
     data: createRefundData,
@@ -115,7 +118,7 @@ export const createRefundRecord = async (
 
 export const updateRefundRecord = async (
   id: number,
-  updateRefundData: Prisma.RefundUpdateInput
+  updateRefundData: Prisma.RefundUpdateInput,
 ) => {
   return await prisma.refund.update({
     where: { id },

@@ -1,8 +1,19 @@
-import { OrderPaymentStatus, OrderSource, OrderStatus, PaymentStatus, Prisma, RefundStatus } from "@prisma/client";
+import {
+  OrderPaymentStatus,
+  OrderSource,
+  OrderStatus,
+  PaymentStatus,
+  Prisma,
+  RefundStatus,
+} from "@prisma/client";
 import { errorCode } from "../../config/error-code";
 import { prisma } from "../../lib/prisma";
 import { generateCode } from "../../lib/unique-key-generator";
-import { ListOrderT, OrderCardQueryDataT, ParseOrderQueryParamsResult } from "../../types/order";
+import {
+  ListOrderT,
+  OrderCardQueryDataT,
+  ParseOrderQueryParamsResult,
+} from "../../types/order";
 import { createError } from "../../utils/common";
 
 // export const orderStatusTransitions: Record<OrderStatus, readonly OrderStatus[]> = {
@@ -116,12 +127,14 @@ export const enrichOrder = async (order: any) => {
   return { ...rest };
 };
 
-export const enrichOrders = async (orders: (ListOrderT | OrderCardQueryDataT)[]) => {
+export const enrichOrders = async (
+  orders: (ListOrderT | OrderCardQueryDataT)[],
+) => {
   return Promise.all(orders.map((order) => enrichOrder(order)));
 };
 
 export const parseOrderQueryParams = (
-  query: any
+  query: any,
 ): ParseOrderQueryParamsResult => {
   const pageSizeParam = Number(query.limit);
   const pageSize =
@@ -157,7 +170,9 @@ export const parseOrderQueryParams = (
   if (typeof query.paymentStatus === "string") {
     const paymentStatusValue = query.paymentStatus.toUpperCase();
     if (
-      Object.values(OrderPaymentStatus).includes(paymentStatusValue as OrderPaymentStatus)
+      Object.values(OrderPaymentStatus).includes(
+        paymentStatusValue as OrderPaymentStatus,
+      )
     ) {
       paymentStatus = paymentStatusValue as OrderPaymentStatus;
     }
@@ -212,10 +227,17 @@ export const buildOrderWhereClause = (params: {
   const whereConditions: Prisma.OrderWhereInput[] = [{ deletedAt: null }];
 
   if (condition === "active") {
-    whereConditions.push({ status: { notIn: [OrderStatus.CANCELLED, OrderStatus.REJECTED, OrderStatus.DONE] } });
-  }
-  else if (condition === "inactive") {
-    whereConditions.push({ status: { in: [OrderStatus.CANCELLED, OrderStatus.REJECTED, OrderStatus.DONE] } });
+    whereConditions.push({
+      status: {
+        notIn: [OrderStatus.CANCELLED, OrderStatus.REJECTED, OrderStatus.DONE],
+      },
+    });
+  } else if (condition === "inactive") {
+    whereConditions.push({
+      status: {
+        in: [OrderStatus.CANCELLED, OrderStatus.REJECTED, OrderStatus.DONE],
+      },
+    });
   }
 
   if (search) {
@@ -248,8 +270,8 @@ export const buildOrderWhereClause = (params: {
 
   return whereConditions.length > 0
     ? {
-      AND: whereConditions,
-    }
+        AND: whereConditions,
+      }
     : {};
 };
 
@@ -340,7 +362,7 @@ export const insertOrderRecord = async (data: Prisma.OrderCreateInput) => {
 
 export const updateOrderRecord = async (
   id: number,
-  data: Prisma.OrderUpdateInput
+  data: Prisma.OrderUpdateInput,
 ) => {
   return await prisma.order.update({
     where: { id },
@@ -367,7 +389,9 @@ export const deleteOrderRecord = async (id: number) => {
   });
 };
 
-export const createOrderItemRecord = async (data: Prisma.OrderItemCreateManyOrderInput) => {
+export const createOrderItemRecord = async (
+  data: Prisma.OrderItemCreateManyOrderInput,
+) => {
   // This is useful for nested creation or manual item insertion
   // Actually OrderItem creation is usually part of Order creation or manual loop
 };
@@ -405,7 +429,7 @@ export const requireOrderCode = (code: string) => {
 export const calculateOrderPaymentStatus = (
   totalPrice: number,
   totalPaidAmount: number,
-  totalRefundAmount: number
+  totalRefundAmount: number,
 ): OrderPaymentStatus => {
   if (totalRefundAmount > 0) {
     if (totalRefundAmount >= totalPaidAmount) {

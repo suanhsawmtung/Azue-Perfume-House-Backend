@@ -1,36 +1,40 @@
 import {
-    Payment,
-    PaymentStatus,
-    Prisma,
-    RefundStatus,
-    TransactionDirection,
-    TransactionType,
+  Payment,
+  PaymentStatus,
+  Prisma,
+  RefundStatus,
+  TransactionDirection,
+  TransactionType,
 } from "@prisma/client";
 import { errorCode } from "../../config/error-code";
 import { prisma } from "../../lib/prisma";
 import { ServiceResponseT } from "../../types/common";
 import {
-    CreatePaymentParams,
-    ListPaymentResultT,
-    ListPaymentsParams,
-    ListPaymentT,
-    UpdatePaymentParams,
+  CreatePaymentParams,
+  ListPaymentResultT,
+  ListPaymentsParams,
+  ListPaymentT,
+  UpdatePaymentParams,
 } from "../../types/payment";
 import { createError } from "../../utils/common";
-import { calculateOrderPaymentStatus, findOrderRecordByCode } from "../order/order.helpers";
 import {
-    buildPaymentWhereClause,
-    findPaymentById,
-    parsePaymentQueryParams,
-    updatePaymentRecord,
+  calculateOrderPaymentStatus,
+  findOrderRecordByCode,
+} from "../order/order.helpers";
+import {
+  buildPaymentWhereClause,
+  findPaymentById,
+  parsePaymentQueryParams,
+  updatePaymentRecord,
 } from "./payment.helpers";
 import { IAdminPaymentService } from "./payment.interface";
 
 export class AdminPaymentService implements IAdminPaymentService {
   async listPayments(
-    params: ListPaymentsParams
+    params: ListPaymentsParams,
   ): Promise<ServiceResponseT<ListPaymentResultT>> {
-    const { pageSize, offset, search, method, status } = parsePaymentQueryParams(params);
+    const { pageSize, offset, search, method, status } =
+      parsePaymentQueryParams(params);
 
     const where = buildPaymentWhereClause({
       ...(search && { search }),
@@ -91,7 +95,9 @@ export class AdminPaymentService implements IAdminPaymentService {
     };
   }
 
-  async createPayment(params: CreatePaymentParams): Promise<ServiceResponseT<Payment>> {
+  async createPayment(
+    params: CreatePaymentParams,
+  ): Promise<ServiceResponseT<Payment>> {
     const { orderCode, method, amount, reference, note, paidAt } = params;
 
     const order = await findOrderRecordByCode(orderCode);
@@ -104,35 +110,36 @@ export class AdminPaymentService implements IAdminPaymentService {
       });
     }
 
-    const [pendingPaymentCount, totalPaidAggregate, totalRefundedAggregate] = await Promise.all([
-      prisma.payment.count({
-        where: {
-          orderId: order.id,
-          status: PaymentStatus.PENDING,
-          deletedAt: null,
-        },
-      }),
-      prisma.payment.aggregate({
-        where: {
-          orderId: order.id,
-          status: PaymentStatus.SUCCESS,
-          deletedAt: null,
-        },
-        _sum: {
-          amount: true,
-        },
-      }),
-      prisma.refund.aggregate({
-        where: {
-          orderId: order.id,
-          status: RefundStatus.SUCCESS,
-          deletedAt: null,
-        },
-        _sum: {
-          amount: true,
-        },
-      }),
-    ]);
+    const [pendingPaymentCount, totalPaidAggregate, totalRefundedAggregate] =
+      await Promise.all([
+        prisma.payment.count({
+          where: {
+            orderId: order.id,
+            status: PaymentStatus.PENDING,
+            deletedAt: null,
+          },
+        }),
+        prisma.payment.aggregate({
+          where: {
+            orderId: order.id,
+            status: PaymentStatus.SUCCESS,
+            deletedAt: null,
+          },
+          _sum: {
+            amount: true,
+          },
+        }),
+        prisma.refund.aggregate({
+          where: {
+            orderId: order.id,
+            status: RefundStatus.SUCCESS,
+            deletedAt: null,
+          },
+          _sum: {
+            amount: true,
+          },
+        }),
+      ]);
 
     if (pendingPaymentCount > 0) {
       throw createError({
@@ -191,7 +198,7 @@ export class AdminPaymentService implements IAdminPaymentService {
       const newStatus = calculateOrderPaymentStatus(
         Number(order.totalPrice),
         newTotalPaidAmount,
-        totalRefundedAmount
+        totalRefundedAmount,
       );
 
       await tx.order.update({
@@ -211,7 +218,7 @@ export class AdminPaymentService implements IAdminPaymentService {
 
   async updatePayment(
     id: number,
-    params: UpdatePaymentParams
+    params: UpdatePaymentParams,
   ): Promise<ServiceResponseT<Payment>> {
     const { reference, note, paidAt, method } = params;
 
@@ -304,11 +311,19 @@ export class AdminPaymentService implements IAdminPaymentService {
 
       const [totalPaid, totalRefunded] = await Promise.all([
         tx.payment.aggregate({
-          where: { orderId: existing.orderId, status: PaymentStatus.SUCCESS, deletedAt: null },
+          where: {
+            orderId: existing.orderId,
+            status: PaymentStatus.SUCCESS,
+            deletedAt: null,
+          },
           _sum: { amount: true },
         }),
         tx.refund.aggregate({
-          where: { orderId: existing.orderId, status: RefundStatus.SUCCESS, deletedAt: null },
+          where: {
+            orderId: existing.orderId,
+            status: RefundStatus.SUCCESS,
+            deletedAt: null,
+          },
           _sum: { amount: true },
         }),
       ]);
@@ -316,7 +331,7 @@ export class AdminPaymentService implements IAdminPaymentService {
       const newStatus = calculateOrderPaymentStatus(
         Number(existing.order.totalPrice),
         Number(totalPaid._sum.amount || 0),
-        Number(totalRefunded._sum.amount || 0)
+        Number(totalRefunded._sum.amount || 0),
       );
 
       await tx.order.update({
@@ -334,7 +349,7 @@ export class AdminPaymentService implements IAdminPaymentService {
 
   private async verifyPaymentInternal(
     id: number,
-    status: PaymentStatus
+    status: PaymentStatus,
   ): Promise<ServiceResponseT<Payment>> {
     const existing = await findPaymentById(id);
     if (!existing) {
@@ -373,11 +388,19 @@ export class AdminPaymentService implements IAdminPaymentService {
 
         const [totalPaid, totalRefunded] = await Promise.all([
           tx.payment.aggregate({
-            where: { orderId: existing.orderId, status: PaymentStatus.SUCCESS, deletedAt: null },
+            where: {
+              orderId: existing.orderId,
+              status: PaymentStatus.SUCCESS,
+              deletedAt: null,
+            },
             _sum: { amount: true },
           }),
           tx.refund.aggregate({
-            where: { orderId: existing.orderId, status: RefundStatus.SUCCESS, deletedAt: null },
+            where: {
+              orderId: existing.orderId,
+              status: RefundStatus.SUCCESS,
+              deletedAt: null,
+            },
             _sum: { amount: true },
           }),
         ]);
@@ -385,7 +408,7 @@ export class AdminPaymentService implements IAdminPaymentService {
         const newStatus = calculateOrderPaymentStatus(
           Number(existing.order.totalPrice),
           Number(totalPaid._sum.amount || 0),
-          Number(totalRefunded._sum.amount || 0)
+          Number(totalRefunded._sum.amount || 0),
         );
 
         await tx.order.update({

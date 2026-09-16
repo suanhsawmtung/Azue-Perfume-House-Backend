@@ -1,26 +1,32 @@
 import { Brand } from "@prisma/client";
 import { errorCode } from "../../config/error-code";
 import { prisma } from "../../lib/prisma";
-import { CreateBrandParams, ListBrandResultT, ListBrandsParams, ListBrandT, UpdateBrandParams } from "../../types/brand";
+import {
+  CreateBrandParams,
+  ListBrandResultT,
+  ListBrandsParams,
+  ListBrandT,
+  UpdateBrandParams,
+} from "../../types/brand";
 import { ServiceResponseT } from "../../types/common";
 import { createError, createSlug, ensureUniqueSlug } from "../../utils/common";
 import {
-    buildBrandWhereClause,
-    createBrandRecord,
-    deleteBrandRecord,
-    findBrandByName,
-    findBrandByNameExcludingId,
-    findBrandBySlug,
-    findBrandBySlugWithProductCount,
-    parseBrandQueryParams,
-    requireSlug,
-    updateBrandRecord,
+  buildBrandWhereClause,
+  createBrandRecord,
+  deleteBrandRecord,
+  findBrandByName,
+  findBrandByNameExcludingId,
+  findBrandBySlug,
+  findBrandBySlugWithProductCount,
+  parseBrandQueryParams,
+  requireSlug,
+  updateBrandRecord,
 } from "./brand.helpers";
 import { IAdminBrandService } from "./brand.interface";
 
 export class AdminBrandService implements IAdminBrandService {
   async listBrands(
-    params: ListBrandsParams
+    params: ListBrandsParams,
   ): Promise<ServiceResponseT<ListBrandResultT>> {
     const { pageSize, offset, search } = parseBrandQueryParams(params);
     const where = buildBrandWhereClause({ search });
@@ -57,9 +63,7 @@ export class AdminBrandService implements IAdminBrandService {
     };
   }
 
-  async getBrandDetail(
-    slug: string
-  ): Promise<ServiceResponseT<ListBrandT>> {
+  async getBrandDetail(slug: string): Promise<ServiceResponseT<ListBrandT>> {
     const normalizedSlug = requireSlug(slug);
     const brand = await findBrandBySlugWithProductCount(normalizedSlug);
 
@@ -79,7 +83,7 @@ export class AdminBrandService implements IAdminBrandService {
   }
 
   async createBrand(
-    params: CreateBrandParams
+    params: CreateBrandParams,
   ): Promise<ServiceResponseT<Brand>> {
     const { name } = params;
     const trimmedName = name.trim();
@@ -110,7 +114,7 @@ export class AdminBrandService implements IAdminBrandService {
 
   async updateBrand(
     slug: string,
-    params: UpdateBrandParams
+    params: UpdateBrandParams,
   ): Promise<ServiceResponseT<Brand>> {
     const { name } = params;
     const normalizedSlug = requireSlug(slug);
@@ -127,7 +131,7 @@ export class AdminBrandService implements IAdminBrandService {
     const trimmedName = name.trim();
     const existingByName = await findBrandByNameExcludingId(
       trimmedName,
-      existing.id
+      existing.id,
     );
 
     if (existingByName) {
@@ -150,7 +154,7 @@ export class AdminBrandService implements IAdminBrandService {
         slug: slugValue,
       }),
       message: "Brand updated successfully.",
-    }
+    };
   }
 
   async deleteBrand(slug: string): Promise<ServiceResponseT<null>> {
@@ -167,7 +171,8 @@ export class AdminBrandService implements IAdminBrandService {
 
     if (existing._count.products > 0) {
       throw createError({
-        message: "Brand cannot be deleted as it is already being used in some products.",
+        message:
+          "Brand cannot be deleted as it is already being used in some products.",
         status: 400,
         code: errorCode.invalid,
       });
