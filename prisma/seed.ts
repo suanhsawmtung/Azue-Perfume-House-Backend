@@ -42,6 +42,7 @@ export async function main() {
   await prisma.refund.deleteMany({});
   await prisma.payment.deleteMany({});
   await prisma.order.deleteMany({});
+  await prisma.reservation.deleteMany({});
   await prisma.productWishlist.deleteMany({});
   await prisma.post.deleteMany({});
   await prisma.inventory.deleteMany({});
