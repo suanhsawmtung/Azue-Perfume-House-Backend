@@ -3,7 +3,7 @@ import { env } from "../config/env";
 import { hasCache } from "../utils/cache";
 import { runCommand } from "../utils/run-command";
 
-export const maintenanceJob = cron.schedule("* 5 * * *", async () => {
+export const maintenanceJob = cron.schedule("0 5 * * *", async () => {
   const isMaintenanceMode = hasCache(".maintenance");
 
   if (isMaintenanceMode) {

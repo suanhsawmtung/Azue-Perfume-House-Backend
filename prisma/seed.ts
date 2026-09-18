@@ -16,8 +16,8 @@ import { hash } from "../src/lib/hash";
 import { prisma } from "../src/lib/prisma";
 import { recalculateUserPoints } from "../src/services/user/user.helpers";
 import { createSlug, ensureUniqueSlug } from "../src/utils/common";
-import { getFilePath, removeFolder } from "../src/utils/file";
 
+import { getFilePath, removeFolder } from "../src/utils/file";
 import { brands, categories, posts, products } from "./data";
 
 export function createRandomUser() {
@@ -49,7 +49,7 @@ export async function main() {
   await prisma.image.deleteMany({});
   await prisma.productVariant.deleteMany({});
   await prisma.product.deleteMany({});
-  await prisma.user.deleteMany({ where: { role: Role.USER } });
+  await prisma.user.deleteMany();
   await prisma.transaction.deleteMany({});
   await prisma.category.deleteMany({});
   await prisma.brand.deleteMany({});

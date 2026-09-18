@@ -19,7 +19,7 @@ export const removeFile = async (filePath: string) => {
 
 export const removeFolder = async (folderPath: string) => {
   try {
-    await fs.rm(folderPath, { recursive: true });
+    await fs.rm(folderPath, { recursive: true, force: true });
   } catch (error) {
     console.warn(error);
   }
