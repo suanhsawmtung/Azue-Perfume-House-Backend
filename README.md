@@ -8,78 +8,73 @@ The backend provides APIs for the AZUE Perfume House e-commerce platform, includ
 
 The project may be expanded in the future with additional e-commerce and business management capabilities.
 
-
-
 ## Features
 
 ### Customer & Public API
 
-* **Homepage content APIs** — personalized products, best sellers, latest blogs, and latest reviews
-* Product browsing and search APIs
-* Product filtering and pagination APIs
-* Product details and variant APIs
-* Shopping cart APIs
-* Wishlist APIs
-* Customer review APIs
-* Customer profile and account APIs
-* Order creation and order history APIs
-* Order status APIs
-* Blog listing and detail APIs
+- **Homepage content APIs** — personalized products, best sellers, latest blogs, and latest reviews
+- Product browsing and search APIs
+- Product filtering and pagination APIs
+- Product details and variant APIs
+- Shopping cart APIs
+- Wishlist APIs
+- Customer review APIs
+- Customer profile and account APIs
+- Order creation and order history APIs
+- Order status APIs
+- Blog listing and detail APIs
 
 ### Administration Panel
 
-* Dashboard and business reporting APIs
-* Product management APIs (CRUD)
-* Product variant and stock management APIs
-* Blog management APIs (CRUD)
-* Order management APIs
-* Order status management APIs
-* Customer/user management APIs
-* Inventory and stock management APIs
-* Review management APIs
+- Dashboard and business reporting APIs
+- Product management APIs (CRUD)
+- Product variant and stock management APIs
+- Blog management APIs (CRUD)
+- Order management APIs
+- Order status management APIs
+- Customer/user management APIs
+- Inventory and stock management APIs
+- Review management APIs
 
 ### Possible Future Improvements
 
-* Real-time notifications for customers and administrators ✅
-* Real-time customer–admin messaging ✅
-* Supplier management ✅
-* Enhanced delivery and order fulfillment process ✅
-* Enhanced return and exchange management
-* Promotions and enhanced discount features
-* FAQ
-* Additional business and reporting features
-
+- Real-time notifications for customers and administrators ✅
+- Real-time customer–admin messaging ✅
+- Supplier management ✅
+- Enhanced delivery and order fulfillment process ✅
+- Enhanced return and exchange management
+- Promotions and enhanced discount features
+- FAQ
+- Additional business and reporting features
 
 ## Tech Stack
 
 ### Runtime & Framework
 
-* **Node.js** — JavaScript runtime
-* **Express.js** — Backend framework
-* **TypeScript** — Type-safe development
+- **Node.js** — JavaScript runtime
+- **Express.js** — Backend framework
+- **TypeScript** — Type-safe development
 
 ### Database
 
-* **PostgreSQL** — Relational database
-* **Prisma ORM** — Database access and ORM
+- **PostgreSQL** — Relational database
+- **Prisma ORM** — Database access and ORM
 
 ### Authentication & Authorization
 
-* **JWT** — Stateless authentication with access and refresh tokens
-* **Passport.js** — Google OAuth authentication
-* **Role-based authorization** — Customer and administrator access control
+- **JWT** — Stateless authentication with access and refresh tokens
+- **Passport.js** — Google OAuth authentication
+- **Role-based authorization** — Customer and administrator access control
 
 ### API & Validation
 
-* **Express Validator** — Request validation
-* **REST API** — Client-server communication
+- **Express Validator** — Request validation
+- **REST API** — Client-server communication
 
 ### File & Email Services
 
-* **Multer** — Multipart/form-data and file uploads
-* **Resend** — Transactional email delivery
-
-
+- **Multer** — Multipart/form-data and file uploads
+- **Resend** — Transactional email delivery
 
 ## Important Technical Implementations
 
@@ -96,14 +91,13 @@ The project may be expanded in the future with additional e-commerce and busines
 - Transactional email delivery with Resend
 - RESTful API architecture
 
-
 ## Setup
 
 ### Prerequisites
 
-* Node.js
-* pnpm
-* PostgreSQL
+- Node.js
+- pnpm
+- PostgreSQL
 
 ### Installation
 
@@ -157,6 +151,12 @@ npx prisma migrate dev
 pnpm prisma generate
 ```
 
+#### Run the seeder:
+
+```bash
+pnpm seed
+```
+
 ### Run the Development Server
 
 ```bash
@@ -182,9 +182,4 @@ pnpm dev
 | `CORS_ORIGINS`             | Allowed frontend origin(s) for CORS         | `http://localhost:5173`                                            |
 | `DATABASE_URL`             | PostgreSQL connection string used by Prisma | `postgresql://username:password@localhost:5432/azue?schema=public` |
 
-
 > **Note:** These are development values. Update them according to your deployment environment.
-
-
-
-
