@@ -8,6 +8,8 @@ The backend provides APIs for the AZUE Perfume House e-commerce platform, includ
 
 The project may be expanded in the future with additional e-commerce and business management capabilities.
 
+**Related:** [Frontend](https://github.com/suanhsawmtung/Azue-Perfume-House)
+
 ## Features
 
 ### Customer & Public API
